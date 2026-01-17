@@ -1,8 +1,5 @@
-
-# MASIIH NGEBUG GUYSS
-
-
 import tkinter
+import math
 
 button_values = [
     ["AC" , "+/-", "%", "÷"],
@@ -12,8 +9,8 @@ button_values = [
     ["0" , ".", "√", "="]
 ]
 
-right_symbols = ["÷", "×", "-", "+", "="]
-top_symbols = ["AC", "+/-", "%"]
+right_symbols = ["÷", "x", "-", "+", "="]
+top_symbols = ["AC", "+/-", "%", "√"]
 
 row_count = len(button_values)
 column_count = len(button_values[0])
@@ -62,6 +59,13 @@ def clear_all():
     operator = None
     B = None
 
+def delete_one():
+    current_text = label["text"]
+    if len(current_text) > 1:
+        label["text"] = current_text[:-1]
+    else:
+        label["text"] = "0"
+
 def remove_zero_decimal(num):
     if num % 1 == 0:
         num = int(num)
@@ -87,11 +91,11 @@ def button_clicked(value):
 
             clear_all()
 
-        elif value in "+-x÷":
-            if operator is None:
-                A = label["text"]
-                label["text"] = "0"
-                B = "0"
+    elif value in "+-x÷":
+        if operator is None:
+            A = label["text"]
+            label["text"] = "0"
+            B = "0"
 
             operator = value
 
@@ -108,12 +112,17 @@ def button_clicked(value):
             result = float(label["text"]) / 100
             label["text"] = remove_zero_decimal(result)
 
+        elif value == "√":
+            current_val = float(label["text"])
+            result = math.sqrt(current_val)
+            label["text"] = remove_zero_decimal(result)
+
     else:
         if value == ".":
             if value not in label["text"]:
                 label["text"] += value
         
-        elif value in "123456789":
+        elif value.isdigit():
             if label["text"] == "0":
                 label["text"] = value
             else:
@@ -131,5 +140,29 @@ window_x = int((screen_width/2) - (window_width/2))
 window_y = int((screen_height/2) - (window_height/2))
 
 window.geometry(f"{window_width}x{window_height}+{window_x}+{window_y}")
+
+def key_handler(event):
+    key = event.char
+    keysym = event.keysym
+
+    if key.isdigit() or key == ".":
+        button_clicked(key)
+    
+    elif key == "*":
+        button_clicked("x")
+    elif key == "/":
+        button_clicked("÷")
+    elif key == "+":
+        button_clicked("+")
+    elif key == "-":
+        button_clicked("-")
+    elif keysym == "Return":
+        button_clicked("=")
+    elif keysym == "Escape":
+        button_clicked("AC")
+    elif keysym == "BackSpace":
+        delete_one()
+
+window.bind("<Key>", key_handler)
 
 window.mainloop()
